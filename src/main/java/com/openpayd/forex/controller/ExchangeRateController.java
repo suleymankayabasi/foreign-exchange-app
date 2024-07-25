@@ -1,5 +1,6 @@
 package com.openpayd.forex.controller;
 
+import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.service.ExchangeRateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class ExchangeRateController {
     private ExchangeRateService exchangeRateService;
 
     @GetMapping("/exchange-rate")
-    public BigDecimal getExchangeRate(@RequestParam String fromCurrency, @RequestParam String toCurrency) {
+    public BigDecimal getExchangeRate(@RequestParam String fromCurrency, @RequestParam String toCurrency) throws ExternalServiceException {
         return exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
     }
 }

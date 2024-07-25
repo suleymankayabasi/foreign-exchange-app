@@ -1,5 +1,6 @@
 package com.openpayd.forex.controller;
 
+import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.service.ExchangeRateService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +31,7 @@ public class ExchangeRateControllerTest {
 
     @Test
     @DisplayName("Should return correct exchange rate for valid currencies")
-    public void shouldReturnCorrectExchangeRateForValidCurrencies() {
+    public void shouldReturnCorrectExchangeRateForValidCurrencies() throws ExternalServiceException {
         String fromCurrency = "USD";
         String toCurrency = "EUR";
         BigDecimal expectedRate = new BigDecimal("0.85");
@@ -44,7 +45,7 @@ public class ExchangeRateControllerTest {
 
     @Test
     @DisplayName("Should return zero when fromCurrency is invalid")
-    public void shouldReturnZeroWhenFromCurrencyIsInvalid() {
+    public void shouldReturnZeroWhenFromCurrencyIsInvalid() throws ExternalServiceException {
         String fromCurrency = "INVALID";
         String toCurrency = "EUR";
         BigDecimal expectedRate = BigDecimal.ZERO;
@@ -58,7 +59,7 @@ public class ExchangeRateControllerTest {
 
     @Test
     @DisplayName("Should return zero when toCurrency is invalid")
-    public void shouldReturnZeroWhenToCurrencyIsInvalid() {
+    public void shouldReturnZeroWhenToCurrencyIsInvalid() throws ExternalServiceException {
         String fromCurrency = "USD";
         String toCurrency = "INVALID";
         BigDecimal expectedRate = BigDecimal.ZERO;

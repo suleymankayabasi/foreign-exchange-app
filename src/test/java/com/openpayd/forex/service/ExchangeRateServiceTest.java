@@ -2,6 +2,7 @@ package com.openpayd.forex.service;
 
 import com.openpayd.forex.configuration.FixerConfig;
 import com.openpayd.forex.dto.FixerLatestResponse;
+import com.openpayd.forex.exception.ExternalServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,7 +36,7 @@ public class ExchangeRateServiceTest {
     }
 
     @Test
-    public void shouldGetLatestRates() {
+    public void shouldGetLatestRates() throws ExternalServiceException {
         // Mock configuration
         FixerLatestResponse mockResponse = new FixerLatestResponse();
         Map<String, BigDecimal> rates = new HashMap<>();
@@ -62,7 +63,7 @@ public class ExchangeRateServiceTest {
     }
 
     @Test
-    public void shouldGetExchangeRate() {
+    public void shouldGetExchangeRate() throws ExternalServiceException {
         // Mocking getLatestRates() response
         FixerLatestResponse mockResponse = new FixerLatestResponse();
         Map<String, BigDecimal> rates = new HashMap<>();

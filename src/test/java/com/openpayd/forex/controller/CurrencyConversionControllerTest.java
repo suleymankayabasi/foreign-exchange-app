@@ -2,6 +2,8 @@ package com.openpayd.forex.controller;
 
 import com.openpayd.forex.dto.CurrencyConversionRequest;
 import com.openpayd.forex.dto.CurrencyConversionResponse;
+import com.openpayd.forex.exception.DatabaseException;
+import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.service.CurrencyConversionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +32,7 @@ public class CurrencyConversionControllerTest {
 
     @Test
     @DisplayName("Should convert currency successfully")
-    public void shouldConvertCurrencySuccessfully() {
+    public void shouldConvertCurrencySuccessfully() throws ExternalServiceException, DatabaseException {
         CurrencyConversionRequest request = new CurrencyConversionRequest();
         request.setSourceCurrency("USD");
         request.setTargetCurrency("EUR");
@@ -48,7 +50,7 @@ public class CurrencyConversionControllerTest {
 
     @Test
     @DisplayName("Should handle zero amount conversion")
-    public void shouldHandleZeroAmountConversion() {
+    public void shouldHandleZeroAmountConversion() throws ExternalServiceException, DatabaseException {
         CurrencyConversionRequest request = new CurrencyConversionRequest();
         request.setSourceCurrency("USD");
         request.setTargetCurrency("EUR");
