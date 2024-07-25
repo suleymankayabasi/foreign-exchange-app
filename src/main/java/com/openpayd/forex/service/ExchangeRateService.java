@@ -28,8 +28,7 @@ public class ExchangeRateService {
             String endpoint = "/latest";
             String url = fixerConfig.getBaseUrl() + endpoint + "?access_key=" + fixerConfig.getAccessKey();
             return restTemplate.getForObject(url, FixerLatestResponse.class);
-        } catch (
-                HttpServerErrorException e) {
+        } catch (HttpServerErrorException e) {
             throw new ExternalServiceException("External service error: " + e.getMessage());
         } catch (Exception e) {
             throw new RuntimeException("Unexpected error: " + e.getMessage());
