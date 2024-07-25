@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,7 +35,7 @@ public class ExchangeRateService {
             throw new RuntimeException("Unexpected error: " + e.getMessage());
         }
     }
-
+    @Cacheable(value = "exchangeRates", key = "#sourceCurrency + '_' + #targetCurrency")
     public BigDecimal getExchangeRate(String fromCurrency, String toCurrency) throws ExternalServiceException {
         try {
             FixerLatestResponse fixerLatestResponse = getLatestRates();
