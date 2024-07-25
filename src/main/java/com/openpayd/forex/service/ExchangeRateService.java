@@ -35,7 +35,7 @@ public class ExchangeRateService {
             throw new RuntimeException("Unexpected error: " + e.getMessage());
         }
     }
-    @Cacheable(value = "exchangeRates", key = "#sourceCurrency + '_' + #targetCurrency")
+    @Cacheable(value = "exchangeRates", key = "#fromCurrency + '_' + #toCurrency")
     public BigDecimal getExchangeRate(String fromCurrency, String toCurrency) throws ExternalServiceException {
         try {
             FixerLatestResponse fixerLatestResponse = getLatestRates();
