@@ -6,63 +6,110 @@ import com.openpayd.forex.exception.DatabaseException;
 import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.service.CurrencyConversionService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class CurrencyConversionControllerTest {
-
-    @InjectMocks
-    private CurrencyConversionController currencyConversionController;
 
     @Mock
     private CurrencyConversionService currencyConversionService;
 
+    @InjectMocks
+    private CurrencyConversionController currencyConversionController;
+
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("Should convert currency successfully")
-    public void shouldConvertCurrencySuccessfully() throws ExternalServiceException, DatabaseException {
+    public void shouldConvertCurrency_Success() throws ExternalServiceException, DatabaseException {
+        // Arrange
         CurrencyConversionRequest request = new CurrencyConversionRequest();
         request.setSourceCurrency("USD");
         request.setTargetCurrency("EUR");
-        request.setAmount(BigDecimal.valueOf(100.0));
+        request.setAmount(BigDecimal.valueOf(100));
 
-        CurrencyConversionResponse expectedResponse = new CurrencyConversionResponse();
-        expectedResponse.setConvertedAmount(BigDecimal.valueOf(85.0));
+        CurrencyConversionResponse response = new CurrencyConversionResponse();
+        response.setTransactionId("12345");
+        response.setConvertedAmount(BigDecimal.valueOf(85.00));
 
-        when(currencyConversionService.convertCurrency(request)).thenReturn(expectedResponse);
+        when(currencyConversionService.convertCurrency(any(CurrencyConversionRequest.class))).thenReturn(response);
 
-        CurrencyConversionResponse actualResponse = currencyConversionController.convertCurrency(request);
+        // Act
+        ResponseEntity<CurrencyConversionResponse> result = currencyConversionController.convertCurrency(request);
 
-        assertEquals(expectedResponse.getConvertedAmount(), actualResponse.getConvertedAmount());
+        // Assert
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals("12345", result.getBody().getTransactionId());
+        assertEquals(BigDecimal.valueOf(85.00), result.getBody().getConvertedAmount());
     }
 
     @Test
-    @DisplayName("Should handle zero amount conversion")
-    public void shouldHandleZeroAmountConversion() throws ExternalServiceException, DatabaseException {
+    public void shouldConvertCurrency_ExternalServiceException() throws ExternalServiceException, DatabaseException {
+        // Arrange
         CurrencyConversionRequest request = new CurrencyConversionRequest();
         request.setSourceCurrency("USD");
         request.setTargetCurrency("EUR");
-        request.setAmount(BigDecimal.valueOf(0.0));
+        request.setAmount(BigDecimal.valueOf(100));
 
-        CurrencyConversionResponse expectedResponse = new CurrencyConversionResponse();
-        expectedResponse.setConvertedAmount(BigDecimal.valueOf(0.0));
+        when(currencyConversionService.convertCurrency(any(CurrencyConversionRequest.class)))
+                .thenThrow(new ExternalServiceException("External service error"));
 
-        when(currencyConversionService.convertCurrency(request)).thenReturn(expectedResponse);
+        // Act
+        ResponseEntity<CurrencyConversionResponse> result = currencyConversionController.convertCurrency(request);
 
-        CurrencyConversionResponse actualResponse = currencyConversionController.convertCurrency(request);
+        // Assert
+        assertEquals(HttpStatus.BAD_GATEWAY, result.getStatusCode());
+        assertNull(result.getBody());
+    }
 
-        assertEquals(expectedResponse.getConvertedAmount(), actualResponse.getConvertedAmount());
+    @Test
+    public void shouldConvertCurrency_DatabaseException() throws ExternalServiceException, DatabaseException {
+        // Arrange
+        CurrencyConversionRequest request = new CurrencyConversionRequest();
+        request.setSourceCurrency("USD");
+        request.setTargetCurrency("EUR");
+        request.setAmount(BigDecimal.valueOf(100));
+
+        when(currencyConversionService.convertCurrency(any(CurrencyConversionRequest.class)))
+                .thenThrow(new DatabaseException("Database error"));
+
+        // Act
+        ResponseEntity<CurrencyConversionResponse> result = currencyConversionController.convertCurrency(request);
+
+        // Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        assertNull(result.getBody());
+    }
+
+    @Test
+    public void shouldConvertCurrency_UnhandledException() throws ExternalServiceException, DatabaseException {
+        // Arrange
+        CurrencyConversionRequest request = new CurrencyConversionRequest();
+        request.setSourceCurrency("USD");
+        request.setTargetCurrency("EUR");
+        request.setAmount(BigDecimal.valueOf(100));
+
+        when(currencyConversionService.convertCurrency(any(CurrencyConversionRequest.class)))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act
+        ResponseEntity<CurrencyConversionResponse> result = currencyConversionController.convertCurrency(request);
+
+        // Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        assertNull(result.getBody());
     }
 }

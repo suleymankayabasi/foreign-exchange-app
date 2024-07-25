@@ -8,7 +8,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,8 +24,14 @@ import java.math.BigDecimal;
 @RequestMapping("/api")
 public class ExchangeRateController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ExchangeRateController.class);
+
+    private final ExchangeRateService exchangeRateService;
+
     @Autowired
-    private ExchangeRateService exchangeRateService;
+    public ExchangeRateController(ExchangeRateService exchangeRateService) {
+        this.exchangeRateService = exchangeRateService;
+    }
 
     @GetMapping("/exchange-rate")
     @Operation(summary = "Get exchange rate", description = "Get exchange rate between two currencies")
@@ -33,10 +43,24 @@ public class ExchangeRateController {
             @ApiResponse(responseCode = "500", description = "Internal server error",
                     content = @Content(schema = @Schema(hidden = true)))
     })
-    public BigDecimal getExchangeRate(@Parameter(description = "The currency code to convert from", required = true, example = "USD")
-                                          @RequestParam String fromCurrency,
-                                      @Parameter(description = "The currency code to convert to", required = true, example = "EUR")
-                                          @RequestParam String toCurrency) throws ExternalServiceException {
-        return exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
+    public ResponseEntity<BigDecimal> getExchangeRate(
+            @Parameter(description = "The currency code to convert from", required = true, example = "USD")
+            @RequestParam String fromCurrency,
+            @Parameter(description = "The currency code to convert to", required = true, example = "EUR")
+            @RequestParam String toCurrency) {
+
+        logger.info("Received request to get exchange rate from {} to {}", fromCurrency, toCurrency);
+
+        try {
+            BigDecimal exchangeRate = exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
+            logger.info("Successfully retrieved exchange rate: {}", exchangeRate);
+            return ResponseEntity.ok(exchangeRate);
+        } catch (ExternalServiceException e) {
+            logger.error("Failed to retrieve exchange rate", e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(null);
+        } catch (Exception e) {
+            logger.error("Unexpected error occurred while retrieving exchange rate", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }

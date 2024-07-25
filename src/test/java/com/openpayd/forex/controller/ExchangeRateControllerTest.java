@@ -3,71 +3,80 @@ package com.openpayd.forex.controller;
 import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.service.ExchangeRateService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
 public class ExchangeRateControllerTest {
+
+    @Mock
+    private ExchangeRateService exchangeRateService;
 
     @InjectMocks
     private ExchangeRateController exchangeRateController;
 
-    @MockBean
-    private ExchangeRateService exchangeRateService;
-
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("Should return correct exchange rate for valid currencies")
-    public void shouldReturnCorrectExchangeRateForValidCurrencies() throws ExternalServiceException {
+    public void shouldGetExchangeRate_Success() throws ExternalServiceException {
+        // Arrange
         String fromCurrency = "USD";
         String toCurrency = "EUR";
-        BigDecimal expectedRate = new BigDecimal("0.85");
+        BigDecimal exchangeRate = BigDecimal.valueOf(0.85);
 
-        when(exchangeRateService.getExchangeRate(fromCurrency, toCurrency)).thenReturn(expectedRate);
+        when(exchangeRateService.getExchangeRate(fromCurrency, toCurrency)).thenReturn(exchangeRate);
 
-        BigDecimal actualRate = exchangeRateController.getExchangeRate(fromCurrency, toCurrency);
+        // Act
+        ResponseEntity<BigDecimal> result = exchangeRateController.getExchangeRate(fromCurrency, toCurrency);
 
-        assertEquals(expectedRate, actualRate);
+        // Assert
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertNotNull(result.getBody());
+        assertEquals(exchangeRate, result.getBody());
     }
 
     @Test
-    @DisplayName("Should return zero when fromCurrency is invalid")
-    public void shouldReturnZeroWhenFromCurrencyIsInvalid() throws ExternalServiceException {
-        String fromCurrency = "INVALID";
+    public void shouldGetExchangeRate_ExternalServiceException() throws ExternalServiceException {
+        // Arrange
+        String fromCurrency = "USD";
         String toCurrency = "EUR";
-        BigDecimal expectedRate = BigDecimal.ZERO;
 
-        when(exchangeRateService.getExchangeRate(fromCurrency, toCurrency)).thenReturn(expectedRate);
+        when(exchangeRateService.getExchangeRate(fromCurrency, toCurrency))
+                .thenThrow(new ExternalServiceException("External service error"));
 
-        BigDecimal actualRate = exchangeRateController.getExchangeRate(fromCurrency, toCurrency);
+        // Act
+        ResponseEntity<BigDecimal> result = exchangeRateController.getExchangeRate(fromCurrency, toCurrency);
 
-        assertEquals(expectedRate, actualRate);
+        // Assert
+        assertEquals(HttpStatus.BAD_GATEWAY, result.getStatusCode());
+        assertNull(result.getBody());
     }
 
     @Test
-    @DisplayName("Should return zero when toCurrency is invalid")
-    public void shouldReturnZeroWhenToCurrencyIsInvalid() throws ExternalServiceException {
+    public void shouldGetExchangeRate_UnhandledException() throws ExternalServiceException {
+        // Arrange
         String fromCurrency = "USD";
-        String toCurrency = "INVALID";
-        BigDecimal expectedRate = BigDecimal.ZERO;
+        String toCurrency = "EUR";
 
-        when(exchangeRateService.getExchangeRate(fromCurrency, toCurrency)).thenReturn(expectedRate);
+        when(exchangeRateService.getExchangeRate(fromCurrency, toCurrency))
+                .thenThrow(new RuntimeException("Unexpected error"));
 
-        BigDecimal actualRate = exchangeRateController.getExchangeRate(fromCurrency, toCurrency);
+        // Act
+        ResponseEntity<BigDecimal> result = exchangeRateController.getExchangeRate(fromCurrency, toCurrency);
 
-        assertEquals(expectedRate, actualRate);
+        // Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        assertNull(result.getBody());
     }
 }

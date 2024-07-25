@@ -1,82 +1,96 @@
 package com.openpayd.forex.controller;
 
 import com.openpayd.forex.dto.ConversionHistoryResponse;
+import com.openpayd.forex.exception.InvalidInputException;
+import com.openpayd.forex.exception.ResourceNotFoundException;
 import com.openpayd.forex.service.ConversionHistoryService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.when;
 
 public class ConversionHistoryControllerTest {
 
-    @InjectMocks
-    private ConversionHistoryController conversionHistoryController;
-
     @Mock
     private ConversionHistoryService conversionHistoryService;
 
+    @InjectMocks
+    private ConversionHistoryController conversionHistoryController;
+
     @BeforeEach
-    public void setup() {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    @DisplayName("Should return conversion history by transaction id")
-    public void shouldReturnConversionHistoryByTransactionId() {
-        String transactionId = "123";
-        ConversionHistoryResponse conversionHistoryResponse = new ConversionHistoryResponse();
-        conversionHistoryResponse.setTransactionId(transactionId);
-        Page<ConversionHistoryResponse> page = new PageImpl<>(List.of(conversionHistoryResponse));
+    public void shouldGetConversionHistory_Success() {
+        // Arrange
+        ConversionHistoryResponse historyResponse = new ConversionHistoryResponse();
+        List<ConversionHistoryResponse> historyList = Collections.singletonList(historyResponse);
+        Page<ConversionHistoryResponse> page = new PageImpl<>(historyList, PageRequest.of(0, 10), 1);
 
-        when(conversionHistoryService.getConversionHistory(transactionId, null, 0, 10)).thenReturn(page);
+        when(conversionHistoryService.getConversionHistory(anyString(), anyString(), anyInt(), anyInt())).thenReturn(page);
 
-        Page<ConversionHistoryResponse> result = conversionHistoryController.getConversionHistory(transactionId, null, 0, 10);
+        // Act
+        ResponseEntity<Page<ConversionHistoryResponse>> response = conversionHistoryController.getConversionHistory("12345", "2023-07-01 12:00:00", 0, 10);
 
-        assertEquals(1, result.getContent().size());
-        assertEquals(transactionId, result.getContent().get(0).getTransactionId());
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().getTotalElements());
     }
 
     @Test
-    @DisplayName("Should return conversion history by transaction date")
-    public void shouldReturnConversionHistoryByTransactionDate() {
-        String transactionDate = "2022-01-01 00:00:00";
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateTime = LocalDateTime.parse(transactionDate, formatter);
+    public void shouldGetConversionHistory_InvalidInput() {
+        // Arrange
+        when(conversionHistoryService.getConversionHistory(anyString(), anyString(), anyInt(), anyInt()))
+                .thenThrow(new InvalidInputException("Invalid input"));
 
-        ConversionHistoryResponse conversionHistoryResponse = new ConversionHistoryResponse();
-        conversionHistoryResponse.setTransactionDate(dateTime);
-        Page<ConversionHistoryResponse> page = new PageImpl<>(List.of(conversionHistoryResponse));
+        // Act
+        ResponseEntity<Page<ConversionHistoryResponse>> response = conversionHistoryController.getConversionHistory("12345", "2023-07-01 12:00:00", 0, 10);
 
-        when(conversionHistoryService.getConversionHistory(null, transactionDate, 0, 10)).thenReturn(page);
-
-        Page<ConversionHistoryResponse> result = conversionHistoryController.getConversionHistory(null, transactionDate, 0, 10);
-
-        assertEquals(1, result.getContent().size());
-        assertEquals(transactionDate, result.getContent().get(0).getTransactionDate().format(formatter));
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
-    @DisplayName("Should return all conversion history when no filters are provided")
-    public void shouldReturnAllConversionHistoryWhenNoFiltersAreProvided() {
-        ConversionHistoryResponse conversionHistoryResponse = new ConversionHistoryResponse();
-        Page<ConversionHistoryResponse> page = new PageImpl<>(Arrays.asList(conversionHistoryResponse, conversionHistoryResponse));
+    public void shouldGetConversionHistory_ResourceNotFound() {
+        // Arrange
+        when(conversionHistoryService.getConversionHistory(anyString(), anyString(), anyInt(), anyInt()))
+                .thenThrow(new ResourceNotFoundException("Resource not found"));
 
-        when(conversionHistoryService.getConversionHistory(null, null, 0, 10)).thenReturn(page);
+        // Act
+        ResponseEntity<Page<ConversionHistoryResponse>> response = conversionHistoryController.getConversionHistory("12345", "2023-07-01 12:00:00", 0, 10);
 
-        Page<ConversionHistoryResponse> result = conversionHistoryController.getConversionHistory(null, null, 0, 10);
+        // Assert
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
 
-        assertEquals(2, result.getContent().size());
+    @Test
+    public void shouldGetConversionHistory_UnexpectedError() {
+        // Arrange
+        when(conversionHistoryService.getConversionHistory(anyString(), anyString(), anyInt(), anyInt()))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        // Act
+        ResponseEntity<Page<ConversionHistoryResponse>> response = conversionHistoryController.getConversionHistory("12345", "2023-07-01 12:00:00", 0, 10);
+
+        // Assert
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 }
