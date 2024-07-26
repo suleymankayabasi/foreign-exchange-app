@@ -2,7 +2,6 @@ package com.openpayd.forex.service;
 
 import com.openpayd.forex.dto.ConversionHistoryResponse;
 import com.openpayd.forex.exception.InvalidInputException;
-import com.openpayd.forex.exception.ResourceNotFoundException;
 import com.openpayd.forex.model.ConversionHistory;
 import com.openpayd.forex.repository.ConversionHistoryRepository;
 import org.slf4j.Logger;
@@ -32,28 +31,17 @@ public class ConversionHistoryService {
 
     public Page<ConversionHistoryResponse> getConversionHistory(String transactionId, String transactionDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ConversionHistory> conversionHistories;
-
-        if (Objects.nonNull(transactionId)) {
-            logger.debug("Fetching conversion history by transaction ID: {}", transactionId);
-            conversionHistories = fetchByTransactionId(transactionId, pageable);
-        } else if (Objects.nonNull(transactionDate)) {
-            logger.debug("Fetching conversion history by transaction date: {}", transactionDate);
-            conversionHistories = fetchByTransactionDate(transactionDate, pageable);
-        } else {
-            logger.debug("Fetching all conversion histories");
-            conversionHistories = conversionHistoryRepository.findAll(pageable);
-        }
+        Page<ConversionHistory> conversionHistories = Objects.nonNull(transactionId)
+                ? fetchByTransactionId(transactionId, pageable)
+                : (Objects.nonNull(transactionDate)
+                ? fetchByTransactionDate(transactionDate, pageable)
+                : null);
 
         return mapToResponse(conversionHistories);
     }
 
     private Page<ConversionHistory> fetchByTransactionId(String transactionId, Pageable pageable) {
         Page<ConversionHistory> conversionHistories = conversionHistoryRepository.findByTransactionId(transactionId, pageable);
-        if (conversionHistories.isEmpty()) {
-            logger.error("No transaction found with ID: {}", transactionId);
-            throw new ResourceNotFoundException("No transaction found with ID: " + transactionId);
-        }
         logger.info("Found {} transactions with ID: {}", conversionHistories.getTotalElements(), transactionId);
         return conversionHistories;
     }
@@ -62,10 +50,6 @@ public class ConversionHistoryService {
         try {
             LocalDateTime date = LocalDateTime.parse(transactionDate, DATE_TIME_FORMATTER);
             Page<ConversionHistory> conversionHistories = conversionHistoryRepository.findByTransactionDate(date, pageable);
-            if (conversionHistories.isEmpty()) {
-                logger.error("No transactions found on date: {}", transactionDate);
-                throw new ResourceNotFoundException("No transactions found on date: " + transactionDate);
-            }
             logger.info("Found {} transactions on date: {}", conversionHistories.getTotalElements(), transactionDate);
             return conversionHistories;
         } catch (Exception e) {

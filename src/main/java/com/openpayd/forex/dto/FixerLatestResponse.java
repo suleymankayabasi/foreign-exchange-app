@@ -1,15 +1,19 @@
 package com.openpayd.forex.dto;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
-@Data
-public class FixerLatestResponse {
-
-    private boolean success;
-    private long timestamp;
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class FixerLatestResponse extends ApiResponse {
     private String base;
+    private String date;
     private Map<String, BigDecimal> rates;
 }

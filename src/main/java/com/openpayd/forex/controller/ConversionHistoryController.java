@@ -1,8 +1,6 @@
 package com.openpayd.forex.controller;
 
 import com.openpayd.forex.dto.ConversionHistoryResponse;
-import com.openpayd.forex.exception.InvalidInputException;
-import com.openpayd.forex.exception.ResourceNotFoundException;
 import com.openpayd.forex.service.ConversionHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,19 +54,9 @@ public class ConversionHistoryController {
         logger.info("Received request to get conversion history. Transaction ID: {}, Transaction Date: {}, Page: {}, Size: {}",
                 transactionId, transactionDate, page, size);
 
-        try {
-            Page<ConversionHistoryResponse> response = conversionHistoryService.getConversionHistory(transactionId, transactionDate, page, size);
-            logger.info("Successfully retrieved conversion history. Number of records: {}", response.getTotalElements());
-            return ResponseEntity.ok(response);
-        } catch (InvalidInputException e) {
-            logger.error("Invalid input error retrieving conversion history", e);
-            return ResponseEntity.badRequest().build();
-        } catch (ResourceNotFoundException e) {
-            logger.error("Resource not found error retrieving conversion history", e);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            logger.error("Unexpected error retrieving conversion history", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        Page<ConversionHistoryResponse> response = conversionHistoryService.getConversionHistory(transactionId, transactionDate, page, size);
+        logger.info("Successfully retrieved conversion history. Number of records: {}", response.getTotalElements());
+        return ResponseEntity.ok(response);
+
     }
 }

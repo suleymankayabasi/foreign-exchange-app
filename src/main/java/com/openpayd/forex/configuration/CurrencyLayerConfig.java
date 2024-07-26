@@ -6,12 +6,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Getter
 @Configuration
-public class FixerConfig {
+public class CurrencyLayerConfig {
 
-    @Value("${fixer.api.key}")
+    @Value("${currencylayer.api.key}")
     private String accessKey;
 
-    @Value("${fixer.api.url}")
+    @Value("${currencylayer.api.url}")
     private String apiUrl;
 
 }

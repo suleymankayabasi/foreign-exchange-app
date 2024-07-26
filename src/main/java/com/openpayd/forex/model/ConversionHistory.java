@@ -26,5 +26,5 @@ public class ConversionHistory {
     @Column
     private BigDecimal convertedAmount;
     @Column(nullable = false)
-    private LocalDateTime transactionDate = LocalDateTime.now();
+    private LocalDateTime transactionDate;
 }

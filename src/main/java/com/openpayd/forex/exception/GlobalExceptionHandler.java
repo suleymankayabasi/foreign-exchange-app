@@ -15,40 +15,16 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Invalid input", ex.getMessage());
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
-        return buildErrorResponse(HttpStatus.NOT_FOUND, "Resource not found", ex.getMessage());
-    }
-
-    @ExceptionHandler(ConflictException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<ErrorResponse> handleConflictException(ConflictException ex) {
-        return buildErrorResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage());
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage());
+    @ExceptionHandler(ExternalServiceException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException ex) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "External service error", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+    public ResponseEntity<ErrorResponse> handleGenericException() {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error", "An unexpected error occurred");
-    }
-
-    @ExceptionHandler(ExternalServiceException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "External service error", ex.getMessage());
-    }
-
-    @ExceptionHandler(DatabaseException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponse> handleDatabaseException(DatabaseException ex) {
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Database error", ex.getMessage());
     }
 
     private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String error, String message) {

@@ -2,7 +2,6 @@ package com.openpayd.forex.service;
 
 import com.openpayd.forex.dto.CurrencyConversionRequest;
 import com.openpayd.forex.dto.CurrencyConversionResponse;
-import com.openpayd.forex.exception.DatabaseException;
 import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.exception.InvalidInputException;
 import com.openpayd.forex.model.ConversionHistory;
@@ -15,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -33,7 +33,7 @@ public class CurrencyConversionService {
     }
 
     @Transactional
-    public CurrencyConversionResponse convertCurrency(CurrencyConversionRequest request) throws ExternalServiceException, DatabaseException {
+    public CurrencyConversionResponse convertCurrency(CurrencyConversionRequest request) throws ExternalServiceException {
         validateRequest(request);
 
         logger.debug("Converting {} {} to {}", request.getAmount(), request.getSourceCurrency(), request.getTargetCurrency());
@@ -63,7 +63,7 @@ public class CurrencyConversionService {
     }
 
     @Transactional
-    protected String saveConversionHistory(CurrencyConversionRequest request, BigDecimal convertedAmount) throws DatabaseException {
+    protected String saveConversionHistory(CurrencyConversionRequest request, BigDecimal convertedAmount) {
         String transactionId = UUID.randomUUID().toString();
         ConversionHistory conversionHistory = new ConversionHistory();
         conversionHistory.setTransactionId(transactionId);
@@ -71,14 +71,10 @@ public class CurrencyConversionService {
         conversionHistory.setTargetCurrency(request.getTargetCurrency());
         conversionHistory.setAmount(request.getAmount());
         conversionHistory.setConvertedAmount(convertedAmount);
+        conversionHistory.setTransactionDate(LocalDateTime.now());
+        conversionHistoryRepository.save(conversionHistory);
+        logger.info("Saved conversion history with transaction ID: {}", transactionId);
 
-        try {
-            conversionHistoryRepository.save(conversionHistory);
-            logger.info("Saved conversion history with transaction ID: {}", transactionId);
-        } catch (Exception e) {
-            logger.error("Failed to save conversion history: {}", e.getMessage());
-            throw new DatabaseException("Failed to save conversion history: " + e.getMessage());
-        }
         return transactionId;
     }
 
