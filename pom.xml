@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.openpayd</groupId>
-	<artifactId>forex</artifactId>
+	<artifactId>foreign-exchange-app</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>forex</name>
 	<description>exchange rate calculation application</description>
