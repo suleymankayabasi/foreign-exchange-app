@@ -1,5 +1,6 @@
 package com.openpayd.forex.controller;
 
+import com.openpayd.forex.dto.ExchangeRateRequest;
 import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.service.ExchangeRateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,13 +9,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
@@ -43,16 +45,13 @@ public class ExchangeRateController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     public ResponseEntity<BigDecimal> getExchangeRate(
-            @Parameter(description = "The currency code to convert from", required = true, example = "USD")
-            @RequestParam String fromCurrency,
-            @Parameter(description = "The currency code to convert to", required = true, example = "EUR")
-            @RequestParam String toCurrency) throws ExternalServiceException {
+            @Parameter(description = "Exchange rate request payload", required = true)
+            @Valid @RequestBody ExchangeRateRequest request) throws ExternalServiceException {
 
-        logger.info("Received request to get exchange rate from {} to {}", fromCurrency, toCurrency);
+        logger.info("Received request to get exchange rate from {} to {}", request.getFromCurrency(), request.getToCurrency());
 
-        BigDecimal exchangeRate = exchangeRateService.getExchangeRate(fromCurrency, toCurrency);
+        BigDecimal exchangeRate = exchangeRateService.getExchangeRate(request.getFromCurrency(), request.getToCurrency());
         logger.info("Successfully retrieved exchange rate: {}", exchangeRate);
         return ResponseEntity.ok(exchangeRate);
-
     }
 }

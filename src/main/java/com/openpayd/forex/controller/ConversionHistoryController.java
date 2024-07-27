@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Objects;
+
 @RestController
 @RequestMapping("/api")
 public class ConversionHistoryController {
@@ -53,6 +55,11 @@ public class ConversionHistoryController {
 
         logger.info("Received request to get conversion history. Transaction ID: {}, Transaction Date: {}, Page: {}, Size: {}",
                 transactionId, transactionDate, page, size);
+
+        if (Objects.isNull(transactionId) && Objects.isNull(transactionDate)) {
+            logger.error("Both transactionId and transactionDate cannot be null at the same time.");
+            return ResponseEntity.badRequest().build();
+        }
 
         Page<ConversionHistoryResponse> response = conversionHistoryService.getConversionHistory(transactionId, transactionDate, page, size);
         logger.info("Successfully retrieved conversion history. Number of records: {}", response.getTotalElements());

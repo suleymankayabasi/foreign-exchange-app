@@ -3,7 +3,6 @@ package com.openpayd.forex.service;
 import com.openpayd.forex.dto.CurrencyConversionRequest;
 import com.openpayd.forex.dto.CurrencyConversionResponse;
 import com.openpayd.forex.exception.ExternalServiceException;
-import com.openpayd.forex.exception.InvalidInputException;
 import com.openpayd.forex.model.ConversionHistory;
 import com.openpayd.forex.repository.ConversionHistoryRepository;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -34,7 +32,6 @@ public class CurrencyConversionService {
 
     @Transactional
     public CurrencyConversionResponse convertCurrency(CurrencyConversionRequest request) throws ExternalServiceException {
-        validateRequest(request);
 
         logger.debug("Converting {} {} to {}", request.getAmount(), request.getSourceCurrency(), request.getTargetCurrency());
 
@@ -84,21 +81,5 @@ public class CurrencyConversionService {
         response.setConvertedAmount(convertedAmount);
         logger.debug("Created response: transactionId={}, convertedAmount={}", transactionId, convertedAmount);
         return response;
-    }
-
-    private void validateRequest(CurrencyConversionRequest request) {
-        if (Objects.isNull(request.getSourceCurrency()) || request.getSourceCurrency().trim().isEmpty()) {
-            logger.error("Validation failed: Source currency cannot be empty");
-            throw new InvalidInputException("Source currency cannot be empty");
-        }
-        if (Objects.isNull(request.getTargetCurrency()) || request.getTargetCurrency().trim().isEmpty()) {
-            logger.error("Validation failed: Target currency cannot be empty");
-            throw new InvalidInputException("Target currency cannot be empty");
-        }
-        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            logger.error("Validation failed: Amount must be greater than zero");
-            throw new InvalidInputException("Amount must be greater than zero");
-        }
-        logger.debug("Validation successful for request: {}", request);
     }
 }

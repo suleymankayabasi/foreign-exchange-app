@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class CurrencyConversionController {
     public ResponseEntity<CurrencyConversionResponse> convertCurrency(
             @RequestBody(description = "Details of the currency conversion request", required = true,
                     content = @Content(schema = @Schema(implementation = CurrencyConversionRequest.class)))
-            @org.springframework.web.bind.annotation.RequestBody CurrencyConversionRequest request) throws ExternalServiceException {
+            @Valid @org.springframework.web.bind.annotation.RequestBody CurrencyConversionRequest request) throws ExternalServiceException {
 
         logger.info("Received currency conversion request. Request details: {}", request);
 

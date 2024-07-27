@@ -35,7 +35,7 @@ public class ConversionHistoryService {
                 ? fetchByTransactionId(transactionId, pageable)
                 : (Objects.nonNull(transactionDate)
                 ? fetchByTransactionDate(transactionDate, pageable)
-                : null);
+                : Page.empty());
 
         return mapToResponse(conversionHistories);
     }

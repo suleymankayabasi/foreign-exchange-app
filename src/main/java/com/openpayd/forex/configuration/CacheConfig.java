@@ -35,7 +35,6 @@ public class CacheConfig {
         if (duration.endsWith("m")) {
             return Long.parseLong(duration.replace("m", ""));
         }
-        // Add more cases if you need to handle other time units
         throw new IllegalArgumentException("Unsupported duration format: " + duration);
     }
 }
