@@ -27,7 +27,7 @@ public class CurrencyConversionRequest {
     private String targetCurrency;
 
     @NotNull(message = "Amount cannot be null")
-    @PositiveOrZero(message = "Amount must be a positive number")
+    @PositiveOrZero(message = "Amount must be a positive number or zero")
     @Schema(description = "Amount to convert", example = "100.00")
     private BigDecimal amount;
 }

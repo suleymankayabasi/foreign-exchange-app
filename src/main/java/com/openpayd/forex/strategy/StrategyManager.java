@@ -25,7 +25,11 @@ public class StrategyManager {
         this.currentStrategy = fixerStrategy;
     }
 
-    public Map<String, BigDecimal> getExchangeRates() throws ExternalServiceException {
+    public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency) throws ExternalServiceException {
+        return currentStrategy.fetchExchangeRate(fromCurrency, toCurrency, getExchangeRates());
+    }
+
+    private Map<String, BigDecimal> getExchangeRates() throws ExternalServiceException {
         try {
             logger.debug("Requesting latest rates using current strategy");
             return currentStrategy.getExchangeRates();
@@ -38,10 +42,6 @@ public class StrategyManager {
             }
             return currentStrategy.getExchangeRates();
         }
-    }
-
-    public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, Map<String, BigDecimal> rates) {
-        return currentStrategy.fetchExchangeRate(fromCurrency, toCurrency, rates);
     }
 
 }

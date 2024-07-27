@@ -1,20 +1,20 @@
 package com.openpayd.forex.configuration;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 
 import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableCaching
+@RequiredArgsConstructor
 public class CacheConfig {
 
-    @Autowired
-    private CaffeineProperties caffeineProperties;
+    private final CaffeineProperties caffeineProperties;
 
     @Bean
     public CaffeineCacheManager cacheManager() {

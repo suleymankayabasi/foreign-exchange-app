@@ -11,9 +11,9 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,16 +21,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class CurrencyConversionController {
 
     private static final Logger logger = LoggerFactory.getLogger(CurrencyConversionController.class);
 
     private final CurrencyConversionService currencyConversionService;
-
-    @Autowired
-    public CurrencyConversionController(CurrencyConversionService currencyConversionService) {
-        this.currencyConversionService = currencyConversionService;
-    }
 
     @PostMapping("/currency-conversion")
     @Operation(summary = "Convert currency", description = "Convert currency with given source and target currency codes and amount")

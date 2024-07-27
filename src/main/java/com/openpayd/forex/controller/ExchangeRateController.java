@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,16 +23,12 @@ import java.math.BigDecimal;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ExchangeRateController {
 
     private static final Logger logger = LoggerFactory.getLogger(ExchangeRateController.class);
 
     private final ExchangeRateService exchangeRateService;
-
-    @Autowired
-    public ExchangeRateController(ExchangeRateService exchangeRateService) {
-        this.exchangeRateService = exchangeRateService;
-    }
 
     @GetMapping("/exchange-rate")
     @Operation(summary = "Get exchange rate", description = "Get exchange rate between two currencies")

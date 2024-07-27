@@ -7,5 +7,5 @@ import java.util.Map;
 
 public interface ExchangeRateStrategy {
     Map<String, BigDecimal> getExchangeRates() throws ExternalServiceException;
-    BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, Map<String, BigDecimal> rates);
+    BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, Map<String, BigDecimal> rates) throws IllegalArgumentException;
 }

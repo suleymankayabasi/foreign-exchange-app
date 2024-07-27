@@ -51,7 +51,7 @@ class CurrencyConversionServiceTest {
         request.setAmount(BigDecimal.valueOf(100));
 
         exchangeRate = BigDecimal.valueOf(0.9);
-        convertedAmount = request.getAmount().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
+        convertedAmount = request.getAmount().multiply(exchangeRate).setScale(6, RoundingMode.HALF_UP);
     }
 
     @Test

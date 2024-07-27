@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,16 +22,12 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class ConversionHistoryController {
 
     private static final Logger logger = LoggerFactory.getLogger(ConversionHistoryController.class);
 
     private final ConversionHistoryService conversionHistoryService;
-
-    @Autowired
-    public ConversionHistoryController(ConversionHistoryService conversionHistoryService) {
-        this.conversionHistoryService = conversionHistoryService;
-    }
 
     @GetMapping("/conversion-history")
     @Operation(summary = "Get conversion history", description = "Retrieve conversion history by transaction ID or transaction date")

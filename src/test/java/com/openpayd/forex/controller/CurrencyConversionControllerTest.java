@@ -34,6 +34,7 @@ public class CurrencyConversionControllerTest {
 
     @Test
     void shouldConvertCurrencySuccessfully() throws Exception, ExternalServiceException {
+        // Given
         CurrencyConversionRequest request = new CurrencyConversionRequest();
         request.setTargetCurrency("USD");
         request.setSourceCurrency("EUR");
@@ -43,10 +44,9 @@ public class CurrencyConversionControllerTest {
         response.setTransactionId("test-id");
         response.setConvertedAmount(BigDecimal.valueOf(85));
 
-        // Mock the service call to return the expected response
         when(currencyConversionService.convertCurrency(any(CurrencyConversionRequest.class))).thenReturn(response);
 
-        // Perform the request and verify the response
+        // When & Then
         mockMvc.perform(post("/api/currency-conversion")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -57,9 +57,10 @@ public class CurrencyConversionControllerTest {
 
     @Test
     void shouldReturnBadRequestWhenRequestIsInvalid() throws Exception {
-        // Send an invalid request body (e.g., missing required fields)
-        String invalidRequest = "{}"; // Modify based on validation requirements
+        // Given
+        String invalidRequest = "{}";
 
+        // When & Then
         mockMvc.perform(post("/api/currency-conversion")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequest))
@@ -68,6 +69,7 @@ public class CurrencyConversionControllerTest {
 
     @Test
     void shouldReturnInternalServerErrorWhenServiceThrowsException() throws Exception, ExternalServiceException {
+        // Given
         CurrencyConversionRequest request = new CurrencyConversionRequest();
         request.setTargetCurrency("USD");
         request.setSourceCurrency("EUR");
@@ -76,6 +78,7 @@ public class CurrencyConversionControllerTest {
         when(currencyConversionService.convertCurrency(any(CurrencyConversionRequest.class)))
                 .thenThrow(new ExternalServiceException("Service error"));
 
+        // When & Then
         mockMvc.perform(post("/api/currency-conversion")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

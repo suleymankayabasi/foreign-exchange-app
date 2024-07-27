@@ -16,6 +16,8 @@ public class CurrencyLayerStrategy implements ExchangeRateStrategy {
     private final CurrencyLayerClient currencyLayerClient;
     private final CurrencyLayerConfig currencyLayerConfig;
 
+    private static final BigDecimal DEFAULT_USD_RATE = BigDecimal.ONE;
+
     public CurrencyLayerStrategy(@Qualifier(value = "com.openpayd.forex.client.CurrencyLayerClient") CurrencyLayerClient currencyLayerClient, CurrencyLayerConfig currencyLayerConfig) {
         this.currencyLayerClient = currencyLayerClient;
         this.currencyLayerConfig = currencyLayerConfig;
@@ -32,8 +34,18 @@ public class CurrencyLayerStrategy implements ExchangeRateStrategy {
 
     @Override
     public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, Map<String, BigDecimal> rates) {
-        String key = fromCurrency + toCurrency;
-        BigDecimal rate = rates.get(key);
-        return rate.setScale(6, RoundingMode.HALF_UP);
+        String fromKey = "USD" + fromCurrency;
+        String toKey = "USD" + toCurrency;
+
+        // Retrieve the exchange rates, defaulting to 1 if not found
+        BigDecimal fromRate = rates.getOrDefault(fromKey, DEFAULT_USD_RATE);
+        BigDecimal toRate = rates.getOrDefault(toKey, DEFAULT_USD_RATE);
+
+        // If the currency pair is not found and both rates are 1, it's likely an error
+        if (fromRate.equals(DEFAULT_USD_RATE) && toRate.equals(DEFAULT_USD_RATE)) {
+            throw new IllegalArgumentException("Currency pair not found: " + fromCurrency + " to " + toCurrency);
+        }
+
+        return toRate.divide(fromRate, 6, RoundingMode.HALF_UP);
     }
 }

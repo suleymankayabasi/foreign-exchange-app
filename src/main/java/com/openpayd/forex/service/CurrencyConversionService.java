@@ -5,9 +5,9 @@ import com.openpayd.forex.dto.CurrencyConversionResponse;
 import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.model.ConversionHistory;
 import com.openpayd.forex.repository.ConversionHistoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,18 +17,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class CurrencyConversionService {
 
     private static final Logger logger = LoggerFactory.getLogger(CurrencyConversionService.class);
 
     private final ExchangeRateService exchangeRateService;
     private final ConversionHistoryRepository conversionHistoryRepository;
-
-    @Autowired
-    public CurrencyConversionService(ExchangeRateService exchangeRateService, ConversionHistoryRepository conversionHistoryRepository) {
-        this.exchangeRateService = exchangeRateService;
-        this.conversionHistoryRepository = conversionHistoryRepository;
-    }
 
     @Transactional
     public CurrencyConversionResponse convertCurrency(CurrencyConversionRequest request) throws ExternalServiceException {
@@ -54,7 +49,7 @@ public class CurrencyConversionService {
     }
 
     private BigDecimal calculateConvertedAmount(CurrencyConversionRequest request, BigDecimal exchangeRate) {
-        BigDecimal convertedAmount = request.getAmount().multiply(exchangeRate).setScale(2, RoundingMode.HALF_UP);
+        BigDecimal convertedAmount = request.getAmount().multiply(exchangeRate).setScale(6, RoundingMode.HALF_UP);
         logger.debug("Calculated converted amount: {}", convertedAmount);
         return convertedAmount;
     }

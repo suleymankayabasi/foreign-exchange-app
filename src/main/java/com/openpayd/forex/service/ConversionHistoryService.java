@@ -4,9 +4,9 @@ import com.openpayd.forex.dto.ConversionHistoryResponse;
 import com.openpayd.forex.exception.InvalidInputException;
 import com.openpayd.forex.model.ConversionHistory;
 import com.openpayd.forex.repository.ConversionHistoryRepository;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,17 +17,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class ConversionHistoryService {
 
     private static final Logger logger = LoggerFactory.getLogger(ConversionHistoryService.class);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final ConversionHistoryRepository conversionHistoryRepository;
-
-    @Autowired
-    public ConversionHistoryService(ConversionHistoryRepository conversionHistoryRepository) {
-        this.conversionHistoryRepository = conversionHistoryRepository;
-    }
 
     public Page<ConversionHistoryResponse> getConversionHistory(String transactionId, String transactionDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
