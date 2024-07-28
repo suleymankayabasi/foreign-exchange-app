@@ -60,9 +60,10 @@ public class ConversionHistoryController {
                 transactionId, transactionDate, page, size);
 
         if ((transactionId == null || transactionId.trim().isEmpty()) &&
-                (transactionDate == null || transactionDate.trim().isEmpty())) {
+                (transactionDate == null || transactionDate.trim().isEmpty()) &&
+                (defaultPageSize < 1 || defaultPageNumber < 0)) {
             log.error("Both transactionId and transactionDate cannot be null or empty at the same time.");
-            throw new InvalidInputException("Both transactionId and transactionDate cannot be null or empty at the same time.");
+            throw new InvalidInputException("Both transactionId and transactionDate cannot be null or empty at the same time or page size and page number cannot be less than 1 or 0.");
         }
 
         Page<ConversionHistory> conversionHistories = conversionHistoryService.getConversionHistory(transactionId, transactionDate, page, size);

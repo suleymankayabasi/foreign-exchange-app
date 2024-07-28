@@ -31,12 +31,18 @@ public class CurrencyConversionService {
     public CurrencyConversionData convertCurrency(CurrencyConversionRequest request) throws ExternalServiceException {
 
         log.debug("Converting {} {} to {}", request.getAmount(), request.getSourceCurrency(), request.getTargetCurrency());
-
         BigDecimal exchangeRate = fetchExchangeRate(request);
         BigDecimal convertedAmount = calculateConvertedAmount(request, exchangeRate);
         String transactionId = saveConversionHistory(request, convertedAmount);
+        return CurrencyConversionData.builder()
+                .transactionId(transactionId)
+                .convertedAmount(convertedAmount)
+                .transactionDate(LocalDateTime.now())
+                .sourceCurrency(request.getSourceCurrency())
+                .targetCurrency(request.getTargetCurrency())
+                .exchangeRate(exchangeRate)
+                .build();
 
-        return new CurrencyConversionData(transactionId, convertedAmount, LocalDateTime.now(), request.getSourceCurrency(), request.getTargetCurrency(), exchangeRate);
     }
 
     private BigDecimal fetchExchangeRate(CurrencyConversionRequest request) {
@@ -50,7 +56,7 @@ public class CurrencyConversionService {
         }
     }
 
-    private BigDecimal calculateConvertedAmount(CurrencyConversionRequest request, BigDecimal exchangeRate) {
+    BigDecimal calculateConvertedAmount(CurrencyConversionRequest request, BigDecimal exchangeRate) {
         BigDecimal convertedAmount = request.getAmount().multiply(exchangeRate).setScale(decimalPlaces, RoundingMode.HALF_UP);
         log.debug("Calculated converted amount: {}", convertedAmount);
         return convertedAmount;

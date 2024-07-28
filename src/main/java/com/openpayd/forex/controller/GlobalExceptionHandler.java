@@ -1,5 +1,9 @@
-package com.openpayd.forex.exception;
+package com.openpayd.forex.controller;
 
+import com.openpayd.forex.exception.ErrorResponse;
+import com.openpayd.forex.exception.ExternalServiceException;
+import com.openpayd.forex.exception.InvalidInputException;
+import com.openpayd.forex.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
