@@ -93,21 +93,21 @@ This project implements a simple foreign exchange application, providing endpoin
 
 ### 1. Conversion History Endpoint
 
-- **Endpoint:** `GET /api/conversion-history`
+- **Endpoint:** `GET /api/conversations`
 - **Description:** Retrieve conversion history by transaction ID or transaction date.
 - **Parameters:**
   - `transactionId` (optional): The transaction ID to filter the conversion history.
   - `transactionDate` (optional): The transaction date to filter the conversion history (format: yyyy-MM-dd HH:mm:ss).
   - `page` (optional, default: 0): Page number for pagination.
-  - `size` (optional, default: 10): Page size for pagination.
+  - `size` (optional, default: 5): Page size for pagination.
 - **Responses:**
   - `200 OK`: Successfully retrieved conversion history.
-  - `400 Bad Request`: Invalid input; both `transactionId` and `transactionDate` cannot be null.
+  - `400 Bad Request`: Invalid input; 
   - `500 Internal Server Error`: An error occurred on the server.
 
 ### 2. Currency Conversion Endpoint
 
-- **Endpoint:** `POST /api/currency-conversion`
+- **Endpoint:** `POST /api/currencies/convert`
 - **Description:** Convert currency with given source and target currency codes and amount.
 - **Request Body:**
   - `CurrencyConversionRequest`: Includes source currency code, target currency code, and amount.
@@ -118,10 +118,12 @@ This project implements a simple foreign exchange application, providing endpoin
 
 ### 3. Exchange Rate Endpoint
 
-- **Endpoint:** `GET /api/exchange-rate`
+- **Endpoint:** `GET /api/exchange-rates`
 - **Description:** Get exchange rate between two currencies.
-- **Request Body:**
-  - `ExchangeRateRequest`: Includes source currency code and target currency code.
+- **Parameters**
+   - `fromCurrency`(required): Source currency code in ISO 4217 format. Must be a 3-letter uppercase string (e.g., "USD").
+   - `toCurrency` (required): Target currency code in ISO 4217 format. Must be a 3-letter uppercase string (e.g., "EUR").
+
 - **Responses:**
   - `200 OK`: Successfully retrieved exchange rate.
   - `400 Bad Request`: Invalid input; please provide valid currency codes.
