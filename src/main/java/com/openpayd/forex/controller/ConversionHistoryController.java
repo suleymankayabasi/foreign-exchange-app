@@ -9,8 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,18 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
-
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ConversionHistoryController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConversionHistoryController.class);
-
     private final ConversionHistoryService conversionHistoryService;
 
-    @GetMapping("/conversion-history")
+    @GetMapping("/conversations")
     @Operation(summary = "Get conversion history", description = "Retrieve conversion history by transaction ID or transaction date")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved conversion history",
@@ -44,21 +40,22 @@ public class ConversionHistoryController {
             @RequestParam(required = false) String transactionId,
             @Parameter(description = "Transaction date to filter the conversion history (format: yyyy-MM-dd HH:mm:ss)", example = "2023-07-01 12:00:00")
             @RequestParam(required = false) String transactionDate,
-            @Parameter(description = "Page number for pagination", example = "0", required = true)
+            @Parameter(description = "Page number for pagination", example = "0")
             @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Page size for pagination", example = "10", required = true)
+            @Parameter(description = "Page size for pagination", example = "10")
             @RequestParam(defaultValue = "10") int size) {
 
-        logger.info("Received request to get conversion history. Transaction ID: {}, Transaction Date: {}, Page: {}, Size: {}",
+        log.debug("Received request to get conversion history. Transaction ID: {}, Transaction Date: {}, Page: {}, Size: {}",
                 transactionId, transactionDate, page, size);
 
-        if (Objects.isNull(transactionId) && Objects.isNull(transactionDate)) {
-            logger.error("Both transactionId and transactionDate cannot be null at the same time.");
+        if ((transactionId == null || transactionId.trim().isEmpty()) &&
+                (transactionDate == null || transactionDate.trim().isEmpty())) {
+            log.error("Both transactionId and transactionDate cannot be null or empty at the same time.");
             return ResponseEntity.badRequest().build();
         }
 
         Page<ConversionHistoryResponse> response = conversionHistoryService.getConversionHistory(transactionId, transactionDate, page, size);
-        logger.info("Successfully retrieved conversion history. Number of records: {}", response.getTotalElements());
+        log.info("Successfully retrieved conversion history. Number of records: {}", response.getTotalElements());
         return ResponseEntity.ok(response);
 
     }

@@ -22,7 +22,7 @@ public class FixerStrategy implements ExchangeRateStrategy {
     }
 
     @Override
-    public Map<String, BigDecimal> getExchangeRates() throws ExternalServiceException {
+    public Map<String, BigDecimal> getExchangeRates() {
         try {
             return fixerClient.getLatestRates(fixerConfig.getAccessKey()).getRates();
         } catch (Exception e) {
@@ -31,9 +31,9 @@ public class FixerStrategy implements ExchangeRateStrategy {
     }
 
     @Override
-    public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, Map<String, BigDecimal> rates) {
+    public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, Map<String, BigDecimal> rates, int decimalPlaces) {
         BigDecimal fromRate = rates.get(fromCurrency);
         BigDecimal toRate = rates.get(toCurrency);
-        return toRate.divide(fromRate, 6, RoundingMode.HALF_UP);
+        return toRate.divide(fromRate, decimalPlaces, RoundingMode.HALF_UP);
     }
 }

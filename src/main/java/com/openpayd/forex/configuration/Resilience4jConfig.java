@@ -11,13 +11,13 @@ import java.time.Duration;
 @Configuration
 public class Resilience4jConfig {
 
-    @Value("${circuitbreaker.failureRateThreshold}")
+    @Value("${circuit-breaker.failure-rate-threshold}")
     private float failureRateThreshold;
 
-    @Value("${circuitbreaker.waitDurationInOpenState}")
+    @Value("${circuit-breaker.wait-duration-in-open-state}")
     private long waitDurationInOpenState;
 
-    @Value("${circuitbreaker.slidingWindowSize}")
+    @Value("${circuit-breaker.sliding-window-size}")
     private int slidingWindowSize;
 
     @Bean

@@ -2,18 +2,16 @@ package com.openpayd.forex.strategy;
 
 import com.openpayd.forex.exception.ExternalServiceException;
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
+@Slf4j
 @Data
 @Component
 public class StrategyManager {
-
-    private static final Logger logger = LoggerFactory.getLogger(StrategyManager.class);
 
     private final ExchangeRateStrategy fixerStrategy;
     private final ExchangeRateStrategy currencyLayerStrategy;
@@ -25,16 +23,16 @@ public class StrategyManager {
         this.currentStrategy = fixerStrategy;
     }
 
-    public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency) throws ExternalServiceException {
-        return currentStrategy.fetchExchangeRate(fromCurrency, toCurrency, getExchangeRates());
+    public BigDecimal fetchExchangeRate(String fromCurrency, String toCurrency, int decimalPlaces) {
+        return currentStrategy.fetchExchangeRate(fromCurrency, toCurrency, getExchangeRates(), decimalPlaces);
     }
 
-    private Map<String, BigDecimal> getExchangeRates() throws ExternalServiceException {
+    private Map<String, BigDecimal> getExchangeRates() {
         try {
-            logger.debug("Requesting latest rates using current strategy");
+            log.debug("Requesting latest rates using current strategy");
             return currentStrategy.getExchangeRates();
         } catch (ExternalServiceException e) {
-            logger.warn("Strategy failed, switching strategy. Error: {}", e.getMessage());
+            log.warn("Strategy failed, switching strategy. Error: {}", e.getMessage());
             if (currentStrategy == fixerStrategy) {
                 currentStrategy = currencyLayerStrategy;
             } else {

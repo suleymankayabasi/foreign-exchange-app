@@ -1,16 +1,14 @@
 package com.openpayd.forex.client;
 
 import com.openpayd.forex.dto.FixerLatestResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+@Slf4j
 @Component
 public class FixerClientFallback implements FixerClient {
-
-    private static final Logger logger = LoggerFactory.getLogger(FixerClientFallback.class);
 
     /**
      * Provides a fallback response for the getLatestRates method.
@@ -20,7 +18,7 @@ public class FixerClientFallback implements FixerClient {
      */
     @Override
     public FixerLatestResponse getLatestRates(String accessKey) {
-        logger.warn("FixerClient is unavailable. Executing fallback method for getLatestRates with accessKey: {}", accessKey);
+        log.warn("FixerClient is unavailable. Executing fallback method for getLatestRates with accessKey: {}", accessKey);
         return createFallbackResponse();
     }
 

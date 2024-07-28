@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CurrencyLayerConfig {
 
-    @Value("${currencylayer.api.key}")
+    @Value("${currency-layer.api.key}")
     private String accessKey;
 
-    @Value("${currencylayer.api.url}")
+    @Value("${currency-layer.api.url}")
     private String apiUrl;
 
 }
