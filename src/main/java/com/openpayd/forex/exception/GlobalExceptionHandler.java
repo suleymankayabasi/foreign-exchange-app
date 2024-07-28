@@ -61,13 +61,6 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Missing Request Parameter", errorMessage);
     }
 
-    @ExceptionHandler(ExternalServiceException.class)
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    @ResponseBody
-    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException ex) {
-        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "External Service Error", ex.getMessage());
-    }
-
     @ExceptionHandler(HandlerMethodValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
@@ -83,6 +76,19 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
 
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation Error", errorMessage);
+    }
+
+    @ExceptionHandler(ExternalServiceException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleExternalServiceException(ExternalServiceException ex) {
+        return buildErrorResponse(HttpStatus.SERVICE_UNAVAILABLE, "External Service Error", ex.getMessage());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "Resource Not Found ", ex.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

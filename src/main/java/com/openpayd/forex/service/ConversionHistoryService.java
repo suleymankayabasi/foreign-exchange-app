@@ -1,7 +1,7 @@
 package com.openpayd.forex.service;
 
-import com.openpayd.forex.dto.ConversionHistoryResponse;
 import com.openpayd.forex.exception.InvalidInputException;
+import com.openpayd.forex.exception.ResourceNotFoundException;
 import com.openpayd.forex.model.ConversionHistory;
 import com.openpayd.forex.repository.ConversionHistoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,20 +24,33 @@ public class ConversionHistoryService {
 
     private final ConversionHistoryRepository conversionHistoryRepository;
 
-    public Page<ConversionHistoryResponse> getConversionHistory(String transactionId, String transactionDate, int page, int size) {
+    public Page<ConversionHistory> getConversionHistory(String transactionId, String transactionDate, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<ConversionHistory> conversionHistories = Objects.nonNull(transactionId)
-                ? fetchByTransactionId(transactionId, pageable)
-                : (Objects.nonNull(transactionDate)
-                ? fetchByTransactionDate(transactionDate, pageable)
-                : Page.empty());
+        Page<ConversionHistory> conversionHistories;
 
-        return mapToResponse(conversionHistories);
+        if (Objects.nonNull(transactionId)) {
+            conversionHistories = fetchByTransactionId(transactionId, pageable);
+        } else if (Objects.nonNull(transactionDate)) {
+            conversionHistories = fetchByTransactionDate(transactionDate, pageable);
+        } else {
+            throw new InvalidInputException("Transaction ID or Transaction Date must be provided");
+        }
+
+        if (conversionHistories.isEmpty()) {
+            throw new ResourceNotFoundException("No conversion history found for the provided criteria");
+        }
+
+        return conversionHistories;
     }
 
     private Page<ConversionHistory> fetchByTransactionId(String transactionId, Pageable pageable) {
         Page<ConversionHistory> conversionHistories = conversionHistoryRepository.findByTransactionId(transactionId, pageable);
-        log.info("Found {} transactions with ID: {}", conversionHistories.getTotalElements(), transactionId);
+
+        if (conversionHistories.isEmpty()) {
+            throw new ResourceNotFoundException("No conversion history found for Transaction ID: " + transactionId);
+        }
+
+        log.info("Found {} transactions with ID: {}", conversionHistories, transactionId);
         return conversionHistories;
     }
 
@@ -53,13 +66,4 @@ public class ConversionHistoryService {
         }
     }
 
-    private Page<ConversionHistoryResponse> mapToResponse(Page<ConversionHistory> conversionHistories) {
-        return conversionHistories.map(conversionHistory -> new ConversionHistoryResponse(
-                conversionHistory.getTransactionId(),
-                conversionHistory.getSourceCurrency(),
-                conversionHistory.getTargetCurrency(),
-                conversionHistory.getAmount(),
-                conversionHistory.getConvertedAmount(),
-                conversionHistory.getTransactionDate()));
-    }
 }

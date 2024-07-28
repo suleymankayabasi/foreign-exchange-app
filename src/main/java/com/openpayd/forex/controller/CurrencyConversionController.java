@@ -8,7 +8,7 @@ import com.openpayd.forex.service.CurrencyConversionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,10 +41,9 @@ public class CurrencyConversionController {
                     content = @Content(schema = @Schema(hidden = true)))
     })
     public ResponseEntity<CurrencyConversionResponse> convertCurrency(
-            @RequestBody(description = "Details of the currency conversion request", required = true,
-                    content = @Content(schema = @Schema(implementation = CurrencyConversionRequest.class)))
-            @Valid @NotNull(message = " Currency conversion request cannot be null or empty ")
-            @org.springframework.web.bind.annotation.RequestBody CurrencyConversionRequest request) {
+            @Valid
+            @NotNull(message = " Currency conversion request cannot be null or empty ")
+            @RequestBody CurrencyConversionRequest request) {
 
         log.debug("Received currency conversion request. Request details: {}", request);
 

@@ -22,7 +22,7 @@ public class ExchangeRateService {
 
     private final StrategyManager strategyManager;
 
-    @Cacheable(value = "exchangeRates", key = "#fromCurrency + '_' + #toCurrency")
+        @Cacheable(value = "exchangeRates", key = "#fromCurrency + '_' + #toCurrency")
     public ExchangeRateData getExchangeRate(String fromCurrency, String toCurrency) {
         try {
             log.debug("Fetching exchange rate for {} to {}", fromCurrency, toCurrency);
