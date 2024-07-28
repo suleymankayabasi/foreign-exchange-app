@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +42,8 @@ public class CurrencyConversionController {
     public ResponseEntity<CurrencyConversionResponse> convertCurrency(
             @RequestBody(description = "Details of the currency conversion request", required = true,
                     content = @Content(schema = @Schema(implementation = CurrencyConversionRequest.class)))
-            @Valid @org.springframework.web.bind.annotation.RequestBody CurrencyConversionRequest request) {
+            @Valid @NotNull(message = " Currency conversion request cannot be null or empty ")
+            @org.springframework.web.bind.annotation.RequestBody CurrencyConversionRequest request) {
 
         log.debug("Received currency conversion request. Request details: {}", request);
 

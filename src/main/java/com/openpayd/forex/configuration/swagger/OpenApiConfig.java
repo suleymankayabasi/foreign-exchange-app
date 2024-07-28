@@ -1,4 +1,4 @@
-package com.openpayd.forex.configuration;
+package com.openpayd.forex.configuration.swagger;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

@@ -1,7 +1,6 @@
 package com.openpayd.forex.strategy;
 
 import com.openpayd.forex.exception.ExternalServiceException;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -9,7 +8,6 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @Slf4j
-@Data
 @Component
 public class StrategyManager {
 
@@ -28,9 +26,13 @@ public class StrategyManager {
     }
 
     private Map<String, BigDecimal> getExchangeRates() {
+        return getCurrentStrategy().getExchangeRates();
+    }
+
+    private ExchangeRateStrategy getCurrentStrategy() {
         try {
             log.debug("Requesting latest rates using current strategy");
-            return currentStrategy.getExchangeRates();
+            return currentStrategy;
         } catch (ExternalServiceException e) {
             log.warn("Strategy failed, switching strategy. Error: {}", e.getMessage());
             if (currentStrategy == fixerStrategy) {
@@ -38,7 +40,7 @@ public class StrategyManager {
             } else {
                 currentStrategy = fixerStrategy;
             }
-            return currentStrategy.getExchangeRates();
+            return currentStrategy;
         }
     }
 

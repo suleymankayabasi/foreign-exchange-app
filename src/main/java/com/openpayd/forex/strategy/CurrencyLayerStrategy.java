@@ -1,9 +1,9 @@
 package com.openpayd.forex.strategy;
 
 import com.openpayd.forex.client.CurrencyLayerClient;
-import com.openpayd.forex.configuration.CurrencyLayerConfig;
 import com.openpayd.forex.exception.ExternalServiceException;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,19 +14,20 @@ import java.util.Map;
 public class CurrencyLayerStrategy implements ExchangeRateStrategy {
 
     private final CurrencyLayerClient currencyLayerClient;
-    private final CurrencyLayerConfig currencyLayerConfig;
+
+    @Value("${currency-layer.access-key}")
+    private String accessKey;
 
     private static final BigDecimal DEFAULT_USD_RATE = BigDecimal.ONE;
 
-    public CurrencyLayerStrategy(@Qualifier(value = "com.openpayd.forex.client.CurrencyLayerClient") CurrencyLayerClient currencyLayerClient, CurrencyLayerConfig currencyLayerConfig) {
+    public CurrencyLayerStrategy(@Qualifier("com.openpayd.forex.client.CurrencyLayerClient") CurrencyLayerClient currencyLayerClient) {
         this.currencyLayerClient = currencyLayerClient;
-        this.currencyLayerConfig = currencyLayerConfig;
     }
 
     @Override
     public Map<String, BigDecimal> getExchangeRates() {
         try {
-            return currencyLayerClient.getLiveRates(currencyLayerConfig.getAccessKey()).getQuotes();
+            return currencyLayerClient.getLiveRates(accessKey).getQuotes();
         } catch (Exception e) {
             throw new ExternalServiceException("Error fetching rates from CurrencyLayer: " + e.getMessage());
         }

@@ -2,6 +2,7 @@ package com.openpayd.forex.service;
 
 import com.openpayd.forex.dto.CurrencyConversionData;
 import com.openpayd.forex.dto.CurrencyConversionRequest;
+import com.openpayd.forex.dto.ExchangeRateData;
 import com.openpayd.forex.exception.ExternalServiceException;
 import com.openpayd.forex.model.ConversionHistory;
 import com.openpayd.forex.repository.ConversionHistoryRepository;
@@ -40,9 +41,9 @@ public class CurrencyConversionService {
 
     private BigDecimal fetchExchangeRate(CurrencyConversionRequest request) {
         try {
-            BigDecimal exchangeRate = exchangeRateService.getExchangeRate(request.getSourceCurrency(), request.getTargetCurrency());
+            ExchangeRateData exchangeRate = exchangeRateService.getExchangeRate(request.getSourceCurrency(), request.getTargetCurrency());
             log.debug("Fetched exchange rate: {}", exchangeRate);
-            return exchangeRate;
+            return exchangeRate.getExchangeRate();
         } catch (ExternalServiceException e) {
             log.error("Failed to retrieve exchange rate for {} to {}: {}", request.getSourceCurrency(), request.getTargetCurrency(), e.getMessage());
             throw new ExternalServiceException("Failed to retrieve exchange rate: " + e.getMessage());

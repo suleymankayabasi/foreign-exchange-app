@@ -1,6 +1,7 @@
 package com.openpayd.forex.controller;
 
 import com.openpayd.forex.dto.ConversionHistoryResponse;
+import com.openpayd.forex.exception.InvalidInputException;
 import com.openpayd.forex.service.ConversionHistoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,7 +52,7 @@ public class ConversionHistoryController {
         if ((transactionId == null || transactionId.trim().isEmpty()) &&
                 (transactionDate == null || transactionDate.trim().isEmpty())) {
             log.error("Both transactionId and transactionDate cannot be null or empty at the same time.");
-            return ResponseEntity.badRequest().build();
+            throw new InvalidInputException("Both transactionId and transactionDate cannot be null or empty at the same time.");
         }
 
         Page<ConversionHistoryResponse> response = conversionHistoryService.getConversionHistory(transactionId, transactionDate, page, size);
